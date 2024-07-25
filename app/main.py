@@ -1,18 +1,3 @@
-'''
-Copyright 2024 NasqwozDilemma
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-'''
-
 import argparse
 import re
 from collections import defaultdict
@@ -20,7 +5,7 @@ from collections import defaultdict
 from icecream import ic
 
 # ic.configureOutput(includeContext=True)
-ic.disable()
+# ic.disable()
 
 
 def group_numbers(numbers, separator, use_dot):
@@ -102,7 +87,7 @@ def range_to_regex(start, end, separator):
         else:
             start_suffix_all_nulls = False
             break
-        ic(start_suffix_all_nulls)
+    ic(start_suffix_all_nulls)
 
     # 'internal_start_suffix_all_nulls'
     for i in start_suffix[1:]:
@@ -111,7 +96,7 @@ def range_to_regex(start, end, separator):
         else:
             internal_start_suffix_all_nulls = False
             break
-        ic(internal_start_suffix_all_nulls)
+    ic(internal_start_suffix_all_nulls)
 
     # 'internal_start_suffix_all_nines'
     for i in start_suffix[1:]:
@@ -120,7 +105,7 @@ def range_to_regex(start, end, separator):
         else:
             internal_start_suffix_all_nines = False
             break
-        ic(internal_start_suffix_all_nines)
+    ic(internal_start_suffix_all_nines)
 
     # 'end_suffix_all_nines'
     for i in end_suffix:
@@ -129,7 +114,7 @@ def range_to_regex(start, end, separator):
         else:
             end_suffix_all_nines = False
             break
-        ic(end_suffix_all_nines)
+    ic(end_suffix_all_nines)
 
     # 'internal_end_suffix_all_nulls'
     for i in end_suffix[1:]:
@@ -138,7 +123,7 @@ def range_to_regex(start, end, separator):
         else:
             internal_end_suffix_all_nulls = False
             break
-        ic(internal_end_suffix_all_nulls)
+    ic(internal_end_suffix_all_nulls)
 
     # 'internal_end_suffix_all_nines'
     for i in end_suffix[1:]:
@@ -147,7 +132,7 @@ def range_to_regex(start, end, separator):
         else:
             internal_end_suffix_all_nines = False
             break
-        ic(internal_end_suffix_all_nines)
+    ic(internal_end_suffix_all_nines)
 
     # 'all_internal_suffix_all_nulls'
     if start_suffix[1:] == end_suffix[1:]:
@@ -157,12 +142,12 @@ def range_to_regex(start, end, separator):
             else:
                 all_internal_suffix_all_nulls = False
                 break
-            ic(all_internal_suffix_all_nulls)
+        ic(all_internal_suffix_all_nulls)
 
     # 'two_character_number'
     if len(start) == 2:
         two_character_number = True
-        ic(two_character_number)
+    ic(two_character_number)
 
     # 'two_character_number'
     if two_character_number:
@@ -193,6 +178,20 @@ def range_to_regex(start, end, separator):
         regex_parts.append(
             f'^{re.escape(common_prefix)}[0-9]{{{len(start_suffix)}}}$'
         )
+        return f'{separator}'.join(regex_parts)
+
+    # 'internal 000 internal 999'
+    if internal_start_suffix_all_nulls and internal_end_suffix_all_nines:
+        ic('internal 000 internal 999')
+        digits_count = int(end_suffix[0]) - int(start_suffix[0])
+        for i in range(digits_count + 1):
+            new_common_prefix = f'{common_prefix}{int(start_suffix[0]) + i}'
+            new_start_suffix = f'{"0" * len(start_suffix[1:])}'
+            new_end_suffix = f'{"9" * len(end_suffix[1:])}'
+            regex_parts.append(
+                f'^{re.escape(new_common_prefix)}[0-9]'
+                f'{{{len(new_start_suffix)}}}$'
+            )
         return f'{separator}'.join(regex_parts)
 
     # '000 ___'
@@ -321,17 +320,17 @@ def range_to_regex(start, end, separator):
                 regex_parts.append(
                     f'^{re.escape(common_prefix)}'
                     f'{start_suffix[0:i]}'
-                    f'[{int(start_suffix[0]) + 1}-9]'
+                    f'[{int(start_suffix[i]) + 1}-9]'
                     f'[0-9]{{{len(start_suffix) - i - 1}}}$'
                 )
             else:
-                regex_parts.append(
-                    f'^{re.escape(common_prefix)}'
-                    f'{start_suffix[0:i]}'
-                    f'[{int(start_suffix[0]) + 1}-'
-                    f'{int(end_suffix[i]) - 1}]'
-                    f'[0-9]{{{len(start_suffix) - i - 1}}}$'
-                )
+                digits_count = int(end_suffix[0]) - int(start_suffix[0]) - 1
+                for i in range(digits_count):
+                    regex_parts.append(
+                        f'^{re.escape(common_prefix)}'
+                        f'{int(start_suffix[0]) + i + 1}'
+                        f'[0-9]{{{len(start_suffix) - 1}}}$'
+                    )
                 new_start = (
                     f'{common_prefix}{end_suffix[0]}'
                     f'{"0" * (len(end_suffix[1:]))}'
